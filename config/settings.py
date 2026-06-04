@@ -34,8 +34,6 @@ class Settings(BaseSettings):
     project_root: Path = Path(__file__).resolve().parent.parent
     feature_pipeline_path: Path = Path("models/feature_pipeline.pkl")
     model_artifact_path: Path = Path("models/xgb_model.json")
-    config_dir: Path = Path("config")
-
     # ------------------------------------------------------------------
     # Database
     # ------------------------------------------------------------------

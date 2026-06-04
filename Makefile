@@ -64,9 +64,9 @@ setup:  ## Install dependencies and pre-commit hooks
 generate-data:  ## Generate synthetic sensor data for training
 	$(PYTHON) scripts/generate_data.py \
 		--output-dir $(DATA_DIR) \
-		--num-units 50 \
-		--simulation-hours 2160 \
-		--failure-fraction 0.02 \
+		--equipment-count 50 \
+		--days 90 \
+		--failure-rate 0.02 \
 		--seed 42
 
 # ---------------------------------------------------------------------------
@@ -82,10 +82,7 @@ train:  ## Train the XGBoost failure prediction model
 # API Server
 # ---------------------------------------------------------------------------
 serve:  ## Start the FastAPI inference server
-	$(PYTHON) scripts/serve_api.py \
-		--host $(PMP_API_HOST) \
-		--port $(PMP_API_PORT) \
-		--workers $(PMP_API_WORKERS)
+	$(PYTHON) scripts/serve_api.py
 
 # ---------------------------------------------------------------------------
 # Testing

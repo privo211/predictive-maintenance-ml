@@ -45,40 +45,14 @@ def _setup_project_path() -> None:
         sys.path.insert(0, src_path)
 
 
-def _optional_import_error() -> dict:
-    """Optionally import the DataQualityGate class."""
+def _load_quality_gate():
+    """Import the full DataQualityGate or return None."""
     try:
-        from data.quality_checks import check_missing_values, check_value_ranges, check_timestamp_monotonicity
-
-        class DataQualityGate:
-            """Minimal quality gate wrapper pending full implementation."""
-
-            def __init__(self, sensor_registry_path: str | None = None):
-                self._sensor_registry_path = sensor_registry_path
-
-            def validate(self, df: pd.DataFrame):
-                missing = check_missing_values(df)
-                ranges_ok = check_value_ranges(df, {"health": (0.0, 1.0)})
-                monotonic_ok = check_timestamp_monotonicity(df)
-
-                passed = missing["passed"] and ranges_ok["passed"] and monotonic_ok["passed"]
-                summary = {
-                    "missing": missing,
-                    "ranges": ranges_ok,
-                    "monotonic": monotonic_ok,
-                }
-
-                class Report:
-                    def __init__(self, p, s):
-                        self.passed = p
-                        self.summary = s
-
-                return Report(passed, summary)
-
-        return {"DataQualityGate": DataQualityGate}
+        from data.quality_gate import DataQualityGate
+        return DataQualityGate
     except ImportError:
         logger.warning("DataQualityGate not available — quality checks skipped.")
-        return {}
+        return None
 
 
 def _optional_feature_pipeline():
@@ -271,9 +245,8 @@ def main() -> None:
     # ------------------------------------------------------------------
     # Step 2: Data quality gates
     # ------------------------------------------------------------------
-    quality_available = _optional_import_error()
-    if "DataQualityGate" in quality_available:
-        DataQualityGate = quality_available["DataQualityGate"]
+    DataQualityGate = _load_quality_gate()
+    if DataQualityGate is not None:
         quality_gate = DataQualityGate(
             sensor_registry_path=str(_PROJECT_ROOT / "config/sensor_registry.yaml")
         )

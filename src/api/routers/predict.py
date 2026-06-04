@@ -15,7 +15,6 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress
 from datetime import datetime, timezone
 
-import numpy as np
 import pandas as pd
 from fastapi import APIRouter, Depends, Request
 

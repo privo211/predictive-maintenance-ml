@@ -89,7 +89,7 @@ async def promote_model(
         raise ModelNotLoadedException("Model registry is not configured")
 
     model_name = getattr(request.app.state, "model_name", "failure_predictor")
-    target_version = body.version
+    target_version = version
 
     try:
         previous_stage = "Unknown"
