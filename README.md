@@ -361,9 +361,9 @@ curl -s -X POST http://localhost:8000/api/v1/predict \
   -H "Content-Type: application/json" \
   -d '{
     "readings": [
-      {"timestamp": "2026-01-01T00:00:00Z", "equipment_id": "PUMP-001", "sensor_name": "vibration_x", "value": 2.8},
-      {"timestamp": "2026-01-01T00:00:01Z", "equipment_id": "PUMP-001", "sensor_name": "vibration_x", "value": 2.9},
-      {"timestamp": "2026-01-01T00:00:02Z", "equipment_id": "PUMP-001", "sensor_name": "temperature", "value": 75.0}
+      {"timestamp": "2026-01-01T00:00:00Z", "equipment_id": "PUMP-001", "sensor_name": "vibration_x_a", "value": 2.8},
+      {"timestamp": "2026-01-01T00:00:01Z", "equipment_id": "PUMP-001", "sensor_name": "vibration_x_b", "value": 2.9},
+      {"timestamp": "2026-01-01T00:00:02Z", "equipment_id": "PUMP-001", "sensor_name": "temperature_a", "value": 75.0}
     ]
   }' | python3 -m json.tool
 ```
@@ -396,8 +396,8 @@ curl -s -X POST http://localhost:8000/api/v1/explain \
   -H "Content-Type: application/json" \
   -d '{
     "readings": [
-      {"timestamp": "2026-01-01T00:00:00Z", "equipment_id": "PUMP-001", "sensor_name": "vibration_x", "value": 2.8},
-      {"timestamp": "2026-01-01T00:00:01Z", "equipment_id": "PUMP-001", "sensor_name": "vibration_x", "value": 2.9}
+      {"timestamp": "2026-01-01T00:00:00Z", "equipment_id": "PUMP-001", "sensor_name": "vibration_x_a", "value": 2.8},
+      {"timestamp": "2026-01-01T00:00:01Z", "equipment_id": "PUMP-001", "sensor_name": "vibration_x_b", "value": 2.9}
     ]
   }' | python3 -m json.tool
 ```

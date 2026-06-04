@@ -37,13 +37,12 @@ SELECT create_hypertable('processed_features', 'time',
 CREATE TABLE IF NOT EXISTS predictions (
     time                    TIMESTAMPTZ NOT NULL,
     equipment_id            TEXT NOT NULL,
-    model_version           TEXT,
-    failure_probability     DOUBLE PRECISION,
+    prediction_id           TEXT,
+    prediction              DOUBLE PRECISION,
     predicted_class         INTEGER,
-    failure_horizon_hours   DOUBLE PRECISION,
-    inference_latency_ms    DOUBLE PRECISION,
-    ground_truth            INTEGER,
-    shap_values             DOUBLE PRECISION[]
+    model_version           TEXT,
+    latency_ms              DOUBLE PRECISION,
+    quality_passed          BOOLEAN
 );
 
 SELECT create_hypertable('predictions', 'time',
@@ -104,9 +103,8 @@ CREATE INDEX IF NOT EXISTS idx_processed_features_equipment
 -- predictions indexes
 CREATE INDEX IF NOT EXISTS idx_predictions_equipment
     ON predictions (equipment_id, time DESC);
-CREATE INDEX IF NOT EXISTS idx_predictions_ground_truth
-    ON predictions (equipment_id, ground_truth)
-    WHERE ground_truth IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_predictions_quality
+    ON predictions (equipment_id, quality_passed);
 
 -- alert_log indexes
 CREATE INDEX IF NOT EXISTS idx_alert_log_equipment

@@ -173,16 +173,3 @@ class ExplainRequest(BaseModel):
             raise ValueError(msg)
         return v
 
-
-class ModelPromoteRequest(BaseModel):
-    """Request to promote a model version to Production stage."""
-
-    version: Annotated[
-        str,
-        Field(
-            min_length=1,
-            max_length=32,
-            description="Model version number to promote (e.g., '3')",
-            examples=["3", "7"],
-        ),
-    ]

@@ -93,7 +93,7 @@ class _MinimalFeaturePipeline:
             if c not in ("timestamp", "equipment_id")
         ]
 
-        wide = wide.fillna(method="ffill").fillna(method="bfill").fillna(0)
+        wide = wide.ffill().bfill().fillna(0)
 
         features: dict[str, np.ndarray] = {}
 
