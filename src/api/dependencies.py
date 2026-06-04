@@ -29,7 +29,10 @@ def get_model(request: Request) -> Any:
     Returns:
         The XGBoost classifier or None if not loaded.
     """
-    return request.app.state.model
+    model = request.app.state.model
+    if model is None:
+        logger.warning("XGBoost model requested but not loaded.")
+    return model
 
 
 def get_explainer(request: Request) -> Any:
@@ -62,7 +65,10 @@ def get_feature_pipeline(request: Request) -> Any:
     Returns:
         The fitted FeaturePipeline instance or None.
     """
-    return request.app.state.feature_pipeline
+    pipeline = request.app.state.feature_pipeline
+    if pipeline is None:
+        logger.warning("Feature pipeline requested but not loaded.")
+    return pipeline
 
 
 def get_quality_gate(request: Request) -> Any:

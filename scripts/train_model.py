@@ -271,7 +271,6 @@ def main() -> None:
     # ------------------------------------------------------------------
     # Step 2: Data quality gates
     # ------------------------------------------------------------------
-    _optional_import_error()
     quality_available = _optional_import_error()
     if "DataQualityGate" in quality_available:
         DataQualityGate = quality_available["DataQualityGate"]

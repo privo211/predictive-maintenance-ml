@@ -160,8 +160,6 @@ def _do_inference_sync(model, feature_pipeline, df: pd.DataFrame) -> tuple[float
     Raises:
         ModelNotLoadedException: If model or feature_pipeline is None.
     """
-    from api.errors import ModelNotLoadedException
-
     if model is None:
         raise ModelNotLoadedException("Model is not loaded for inference")
     if feature_pipeline is None:
@@ -241,6 +239,7 @@ async def predict(
                 equipment_id,
             )
             _increment_error_count(request)
+            demo_mode = True
             failure_probability, predicted_class = await _demo_mode_predict_async(
                 thread_pool, df, equipment_id, 0.2
             )
@@ -312,6 +311,7 @@ async def batch_predict(
                     "Unexpected error during batch inference for equipment=%s",
                     eq_id,
                 )
+                demo_mode = True
                 failure_prob, pred_class = await _demo_mode_predict_async(
                     thread_pool, eq_df, eq_id, 0.2
                 )
