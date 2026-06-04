@@ -6,7 +6,6 @@ predictions?), and a lightweight metrics endpoint for monitoring.
 
 from __future__ import annotations
 
-import logging
 import time
 
 from fastapi import APIRouter, Request
@@ -14,7 +13,6 @@ from fastapi import APIRouter, Request
 from api.schemas.responses import HealthResponse, MetricsResponse, ReadinessResponse
 
 router = APIRouter(tags=["health"])
-logger = logging.getLogger(__name__)
 
 
 @router.get("/health", response_model=HealthResponse)

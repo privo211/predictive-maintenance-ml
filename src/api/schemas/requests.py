@@ -174,61 +174,6 @@ class ExplainRequest(BaseModel):
         return v
 
 
-class FeedbackRequest(BaseModel):
-    """Request to submit ground-truth feedback for a previous prediction.
-
-    Used for online model monitoring and drift detection. The feedback
-    is stored for downstream evaluation (e.g., Evidently reports).
-    """
-
-    prediction_id: Annotated[
-        str,
-        Field(
-            min_length=1,
-            max_length=64,
-            description="Unique identifier of the prediction being reviewed",
-        ),
-    ]
-    equipment_id: Annotated[
-        str,
-        Field(
-            min_length=1,
-            max_length=64,
-            description="Equipment unit identifier",
-        ),
-    ]
-    predicted_class: Annotated[
-        int,
-        Field(
-            ge=0,
-            le=1,
-            description="The class predicted by the model (0=healthy, 1=failure)",
-        ),
-    ]
-    actual_class: Annotated[
-        int,
-        Field(
-            ge=0,
-            le=1,
-            description="The ground-truth label (0=healthy, 1=failure)",
-        ),
-    ]
-    timestamp: Annotated[
-        datetime,
-        Field(
-            description="ISO-8601 timestamp when the prediction was made",
-        ),
-    ]
-    reviewer_notes: Annotated[
-        str | None,
-        Field(
-            default=None,
-            max_length=2000,
-            description="Optional notes from the reviewer or maintenance technician",
-        ),
-    ] = None
-
-
 class ModelPromoteRequest(BaseModel):
     """Request to promote a model version to Production stage."""
 

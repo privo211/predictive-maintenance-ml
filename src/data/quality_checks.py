@@ -1,8 +1,7 @@
 """Data quality validation functions for synthetic and real datasets.
 
-This module provides basic validation checks for data quality gates.
-These will be expanded in Phase 2 by the data quality gate agent to
-include drift detection, schema validation, and anomaly screening.
+This module provides basic validation checks used by the 5-stage
+DataQualityGate (schema, range, timestamp, cross-channel, drift).
 
 All functions accept pandas DataFrames and return boolean or diagnostic
 dictionaries suitable for integration into data pipeline validation steps.

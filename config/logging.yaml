@@ -92,11 +92,6 @@ loggers:
     handlers: ["console", "file_app"]
     propagate: false
 
-  src.training:
-    level: "INFO"
-    handlers: ["console", "file_app"]
-    propagate: false
-
   # Monitoring & drift detection
   src.monitoring:
     level: "DEBUG"

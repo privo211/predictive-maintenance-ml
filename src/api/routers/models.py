@@ -11,7 +11,6 @@ import logging
 from fastapi import APIRouter, HTTPException, Request
 
 from api.errors import ModelNotLoadedException
-from api.schemas.requests import ModelPromoteRequest
 from api.schemas.responses import (
     ModelInfo,
     ModelListResponse,
@@ -75,7 +74,6 @@ async def list_models(request: Request) -> ModelListResponse:
 @router.post("/models/{version}/promote", response_model=PromoteResponse)
 async def promote_model(
     version: str,
-    body: ModelPromoteRequest,
     request: Request,
 ) -> PromoteResponse:
     """Promote a model version to Production stage.

@@ -3,7 +3,6 @@
 from api.schemas.requests import (
     BatchPredictionRequest,
     ExplainRequest,
-    FeedbackRequest,
     ModelPromoteRequest,
     PredictionRequest,
     SensorReading,
@@ -29,7 +28,6 @@ __all__ = [
     "PredictionRequest",
     "BatchPredictionRequest",
     "ExplainRequest",
-    "FeedbackRequest",
     "ModelPromoteRequest",
     "PredictionResponse",
     "ExplanationResponse",
