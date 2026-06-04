@@ -42,7 +42,9 @@ CREATE TABLE IF NOT EXISTS predictions (
     predicted_class         INTEGER,
     model_version           TEXT,
     latency_ms              DOUBLE PRECISION,
-    quality_passed          BOOLEAN
+    quality_passed          BOOLEAN,
+    actual_failure          BOOLEAN,
+    ground_truth_recorded_at TIMESTAMPTZ
 );
 
 SELECT create_hypertable('predictions', 'time',

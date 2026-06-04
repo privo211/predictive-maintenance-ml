@@ -352,7 +352,7 @@ http://localhost:8000
 | `POST` | `/api/v1/batch-predict` | Batch prediction (up to 50 equipment) | `BatchPredictionRequest` | `BatchPredictionResponse` |
 | `POST` | `/api/v1/explain` | Prediction + SHAP explanation | `ExplainRequest` | `ExplanationResponse` |
 | `GET` | `/api/v1/models` | List registered model versions | — | `ModelListResponse` |
-| `POST` | `/api/v1/models/{version}/promote` | Promote model to Production | `ModelPromoteRequest` | `PromoteResponse` |
+| `POST` | `/api/v1/models/{version}/promote` | Promote model to Production | path param `version` only | `PromoteResponse` |
 
 ### Example: Predict
 

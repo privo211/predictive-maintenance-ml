@@ -66,6 +66,7 @@ packages = [
   "src/models",
   "src/monitoring",
   "src/utils",
+  "scripts",
 ]
 
 [tool.hatch.build.targets.sdist]
@@ -111,7 +112,6 @@ module = [
     "evidently.*",
     "shap.*",
     "mlflow.*",
-    "python_jose.*",
 ]
 ignore_missing_imports = true
 

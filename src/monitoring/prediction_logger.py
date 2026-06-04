@@ -179,11 +179,11 @@ class PredictionLogger:
                     """INSERT INTO predictions (
                         prediction_id, equipment_id, prediction,
                         predicted_class, model_version, latency_ms,
-                        quality_passed, timestamp
+                        quality_passed, time
                     ) VALUES (
                         :prediction_id, :equipment_id, :prediction,
                         :predicted_class, :model_version, :latency_ms,
-                        :quality_passed, :timestamp
+                        :quality_passed, :time
                     )"""
                 ),
                 {
@@ -194,7 +194,7 @@ class PredictionLogger:
                     "model_version": model_version,
                     "latency_ms": latency_ms,
                     "quality_passed": quality_passed,
-                    "timestamp": timestamp,
+                    "time": timestamp,
                 },
             )
 
