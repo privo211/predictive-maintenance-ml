@@ -8,9 +8,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: "postgresql+asyncpg://pdm_user:pdm_pass@db:5432/pdm_db"
-      REDIS_URL: "redis://redis:6379/0"
-      MLFLOW_TRACKING_URI: "http://mlflow:5000"
+      DATABASE_URL: "${PMP_DATABASE_URL:-postgresql+asyncpg://pdm_user:pdm_pass@db:5432/pdm_db}"
+      REDIS_URL: "${PMP_REDIS_URL:-redis://redis:6379/0}"
+      MLFLOW_TRACKING_URI: "${PMP_MLFLOW_URI:-http://mlflow:5000}"
       MODEL_STAGE: "Production"
     depends_on:
       db:
@@ -34,9 +34,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: "pdm_db"
-      POSTGRES_USER: "pdm_user"
-      POSTGRES_PASSWORD: "pdm_pass"
+      POSTGRES_DB: "${PMP_POSTGRES_DB:-pdm_db}"
+      POSTGRES_USER: "${PMP_POSTGRES_USER:-pdm_user}"
+      POSTGRES_PASSWORD: "${PMP_POSTGRES_PASSWORD:-pdm_pass}"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -62,7 +62,7 @@ services:
     image: ghcr.io/mlflow/mlflow:v2.20.0
     command: >
       mlflow server
-      --backend-store-uri postgresql://pdm_user:pdm_pass@db:5432/pdm_db
+      --backend-store-uri ${PMP_MLFLOW_BACKEND_URI:-postgresql://pdm_user:pdm_pass@db:5432/pdm_db}
       --default-artifact-root /mlflow-artifacts
       --host 0.0.0.0
       --port 5000
@@ -82,7 +82,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: "admin"
+      GF_SECURITY_ADMIN_PASSWORD: "${PMP_GRAFANA_PASSWORD:-admin}"
       GF_INSTALL_PLUGINS: "grafana-clock-panel"
     volumes:
       - grafana_data:/var/lib/grafana
@@ -97,9 +97,9 @@ services:
       dockerfile: docker/training.Dockerfile
     command: ["python", "scripts/train_model.py"]
     environment:
-      DATABASE_URL: "postgresql+asyncpg://pdm_user:pdm_pass@db:5432/pdm_db"
-      REDIS_URL: "redis://redis:6379/0"
-      MLFLOW_TRACKING_URI: "http://mlflow:5000"
+      DATABASE_URL: "${PMP_DATABASE_URL:-postgresql+asyncpg://pdm_user:pdm_pass@db:5432/pdm_db}"
+      REDIS_URL: "${PMP_REDIS_URL:-redis://redis:6379/0}"
+      MLFLOW_TRACKING_URI: "${PMP_MLFLOW_URI:-http://mlflow:5000}"
     depends_on:
       db:
         condition: service_healthy

@@ -8,13 +8,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install Python dependencies from pyproject.toml
+# Copy application code first so pip install . can find the package
 COPY pyproject.toml .
-RUN pip install --no-cache-dir .
-
-# Copy application code
 COPY config/ ./config/
 COPY src/ ./src/
 COPY scripts/ ./scripts/
+
+# Install Python dependencies and the package itself
+RUN pip install --no-cache-dir .
+
+# Create non-root user and switch
+RUN useradd --create-home --shell /bin/bash appuser && chown -R appuser:appuser /app
+USER appuser
 
 CMD ["python", "scripts/train_model.py"]
