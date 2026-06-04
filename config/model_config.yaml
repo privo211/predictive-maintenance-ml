@@ -1,0 +1,92 @@
+# ---------------------------------------------------------------------------
+# Model Configuration — XGBoost Failure Predictor
+# ---------------------------------------------------------------------------
+# This file defines the hyperparameter grid, evaluation thresholds, and
+# training orchestration settings for the predictive maintenance model.
+# ---------------------------------------------------------------------------
+
+model:
+  name: "failure_predictor"
+  framework: "xgboost"
+  version: "2.1"
+  objective: "binary:logistic"
+  eval_metric: ["logloss", "aucpr"]
+
+# ---------------------------------------------------------------------------
+# Hyperparameters
+# ---------------------------------------------------------------------------
+hyperparameters:
+  max_depth: 6
+  learning_rate: 0.05
+  n_estimators: 300
+  subsample: 0.8
+  colsample_bytree: 0.8
+  scale_pos_weight: null   # set dynamically from training data class ratio
+  min_child_weight: 5
+  gamma: 0.1
+  reg_alpha: 0.01
+  reg_lambda: 1.0
+  tree_method: "hist"
+  early_stopping_rounds: 30
+  random_state: 42
+
+# ---------------------------------------------------------------------------
+# Evaluation Thresholds (must-pass gates for model promotion)
+# ---------------------------------------------------------------------------
+evaluation:
+  recall_min: 0.90
+  fpr_max: 0.10
+  roc_auc_min: 0.92
+  precision_min: 0.70
+  f1_min: 0.80
+  pr_auc_min: 0.85
+
+# ---------------------------------------------------------------------------
+# Data Splits
+# ---------------------------------------------------------------------------
+data_splits:
+  train_fraction: 0.70
+  validation_fraction: 0.15
+  test_fraction: 0.15
+  temporal_split: true          # respect time ordering
+  split_column: "timestamp"
+
+# ---------------------------------------------------------------------------
+# Calibration
+# ---------------------------------------------------------------------------
+calibration:
+  method: "isotonic"            # isotonic | platt
+  cv_folds: 5
+
+# ---------------------------------------------------------------------------
+# Cross-Validation
+# ---------------------------------------------------------------------------
+cross_validation:
+  strategy: "time_series"       # time_series | stratified_group
+  n_splits: 5
+  gap_between_splits: 0
+  sliding_window: false
+
+# ---------------------------------------------------------------------------
+# Class Imbalance Handling
+# ---------------------------------------------------------------------------
+class_imbalance:
+  strategy: "scale_pos_weight"  # scale_pos_weight | smote | undersample
+  smote_k_neighbors: 5
+  sampling_strategy: 0.3
+
+# ---------------------------------------------------------------------------
+# Feature Selection
+# ---------------------------------------------------------------------------
+feature_selection:
+  method: "shap_importance"
+  top_k_features: 30
+  min_importance_threshold: 0.001
+
+# ---------------------------------------------------------------------------
+# Training Job Configuration
+# ---------------------------------------------------------------------------
+training:
+  max_runtime_seconds: 7200     # 2 hours
+  log_every_n_steps: 10
+  save_best_only: true

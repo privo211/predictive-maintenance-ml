@@ -1,0 +1,500 @@
+# ---------------------------------------------------------------------------
+# Sensor Registry — Equipment Types & Sensor Definitions
+# ---------------------------------------------------------------------------
+# Each equipment type defines a list of sensors with metadata. Sensors
+# marked as `redundant_pair` are physically separate instruments measuring
+# the same quantity; they are used for cross-channel validation.
+# ---------------------------------------------------------------------------
+
+equipment_types:
+
+  # =========================================================================
+  # Centrifugal Pump
+  # =========================================================================
+  centrifugal_pump:
+    display_name: "Centrifugal Pump"
+    asset_code_format: "CP-{UNIT:04d}"
+    typical_lifespan_hours: 40000
+    failure_modes:
+      - bearing_degradation
+      - seal_leakage
+      - impeller_wear
+      - cavitation
+      - misalignment
+    sensors:
+      - name: vibration_x_a
+        unit: mm/s
+        description: "Vibration X-axis primary (bearing housing)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 1000
+        redundant_pair: vibration_x_b
+        data_type: float64
+
+      - name: vibration_x_b
+        unit: mm/s
+        description: "Vibration X-axis secondary (bearing housing)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 1000
+        redundant_pair: vibration_x_a
+        data_type: float64
+
+      - name: vibration_y_a
+        unit: mm/s
+        description: "Vibration Y-axis primary (bearing housing)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 1000
+        redundant_pair: vibration_y_b
+        data_type: float64
+
+      - name: vibration_y_b
+        unit: mm/s
+        description: "Vibration Y-axis secondary (bearing housing)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 1000
+        redundant_pair: vibration_y_a
+        data_type: float64
+
+      - name: vibration_z_a
+        unit: mm/s
+        description: "Vibration Z-axis primary (axial)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 1000
+        redundant_pair: vibration_z_b
+        data_type: float64
+
+      - name: vibration_z_b
+        unit: mm/s
+        description: "Vibration Z-axis secondary (axial)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 1000
+        redundant_pair: vibration_z_a
+        data_type: float64
+
+      - name: temperature_a
+        unit: C
+        description: "Bearing temperature primary"
+        normal_min: 20.0
+        normal_max: 95.0
+        warning_min: 85.0
+        warning_max: 95.0
+        critical_max: 110.0
+        sampling_rate_hz: 1
+        redundant_pair: temperature_b
+        data_type: float64
+
+      - name: temperature_b
+        unit: C
+        description: "Bearing temperature secondary"
+        normal_min: 20.0
+        normal_max: 95.0
+        warning_min: 85.0
+        warning_max: 95.0
+        critical_max: 110.0
+        sampling_rate_hz: 1
+        redundant_pair: temperature_a
+        data_type: float64
+
+      - name: pressure_out
+        unit: kPa
+        description: "Discharge pressure"
+        normal_min: 0.0
+        normal_max: 2000.0
+        warning_min: 100.0
+        warning_max: 1900.0
+        critical_min: 50.0
+        critical_max: 2200.0
+        sampling_rate_hz: 10
+        redundant_pair: null
+        data_type: float64
+
+      - name: flow_rate
+        unit: L/s
+        description: "Volumetric flow rate"
+        normal_min: 0.0
+        normal_max: 500.0
+        warning_min: 10.0
+        warning_max: 480.0
+        critical_min: 0.0
+        critical_max: 550.0
+        sampling_rate_hz: 10
+        redundant_pair: null
+        data_type: float64
+
+      - name: rpm
+        unit: rpm
+        description: "Rotational speed"
+        normal_min: 0.0
+        normal_max: 3600.0
+        warning_min: 100.0
+        warning_max: 3550.0
+        critical_max: 4000.0
+        sampling_rate_hz: 10
+        redundant_pair: null
+        data_type: float64
+
+      - name: current_a
+        unit: A
+        description: "Motor current phase A"
+        normal_min: 0.0
+        normal_max: 50.0
+        warning_min: 0.5
+        warning_max: 45.0
+        critical_max: 60.0
+        sampling_rate_hz: 10
+        redundant_pair: null
+        data_type: float64
+
+  # =========================================================================
+  # Steam Turbine
+  # =========================================================================
+  steam_turbine:
+    display_name: "Steam Turbine"
+    asset_code_format: "ST-{UNIT:04d}"
+    typical_lifespan_hours: 60000
+    failure_modes:
+      - blade_erosion
+      - bearing_degradation
+      - rotor_imbalance
+      - steam_path_deposits
+      - journal_wear
+    sensors:
+      - name: vibration_x_a
+        unit: mm/s
+        description: "Vibration X-axis primary (bearing pedestal)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 2000
+        redundant_pair: vibration_x_b
+        data_type: float64
+
+      - name: vibration_x_b
+        unit: mm/s
+        description: "Vibration X-axis secondary (bearing pedestal)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 2000
+        redundant_pair: vibration_x_a
+        data_type: float64
+
+      - name: vibration_y_a
+        unit: mm/s
+        description: "Vibration Y-axis primary (bearing pedestal)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 2000
+        redundant_pair: vibration_y_b
+        data_type: float64
+
+      - name: vibration_y_b
+        unit: mm/s
+        description: "Vibration Y-axis secondary (bearing pedestal)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 2000
+        redundant_pair: vibration_y_a
+        data_type: float64
+
+      - name: vibration_z_a
+        unit: mm/s
+        description: "Vibration Z-axis primary (axial thrust)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 2000
+        redundant_pair: vibration_z_b
+        data_type: float64
+
+      - name: vibration_z_b
+        unit: mm/s
+        description: "Vibration Z-axis secondary (axial thrust)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 2000
+        redundant_pair: vibration_z_a
+        data_type: float64
+
+      - name: temperature_a
+        unit: C
+        description: "Bearing temperature primary"
+        normal_min: 20.0
+        normal_max: 95.0
+        warning_min: 85.0
+        warning_max: 95.0
+        critical_max: 110.0
+        sampling_rate_hz: 1
+        redundant_pair: temperature_b
+        data_type: float64
+
+      - name: temperature_b
+        unit: C
+        description: "Bearing temperature secondary"
+        normal_min: 20.0
+        normal_max: 95.0
+        warning_min: 85.0
+        warning_max: 95.0
+        critical_max: 110.0
+        sampling_rate_hz: 1
+        redundant_pair: temperature_a
+        data_type: float64
+
+      - name: steam_temp
+        unit: C
+        description: "Steam inlet temperature"
+        normal_min: 200.0
+        normal_max: 600.0
+        warning_min: 220.0
+        warning_max: 580.0
+        critical_min: 200.0
+        critical_max: 620.0
+        sampling_rate_hz: 1
+        redundant_pair: null
+        data_type: float64
+
+      - name: steam_pressure
+        unit: MPa
+        description: "Steam inlet pressure"
+        normal_min: 0.0
+        normal_max: 20.0
+        warning_min: 1.0
+        warning_max: 18.0
+        critical_max: 22.0
+        sampling_rate_hz: 1
+        redundant_pair: null
+        data_type: float64
+
+      - name: power_output
+        unit: MW
+        description: "Electrical power output"
+        normal_min: 0.0
+        normal_max: 500.0
+        warning_min: 10.0
+        warning_max: 480.0
+        critical_max: 550.0
+        sampling_rate_hz: 1
+        redundant_pair: null
+        data_type: float64
+
+      - name: rpm
+        unit: rpm
+        description: "Turbine speed"
+        normal_min: 0.0
+        normal_max: 3600.0
+        warning_min: 100.0
+        warning_max: 3550.0
+        critical_max: 4000.0
+        sampling_rate_hz: 100
+        redundant_pair: null
+        data_type: float64
+
+      - name: current_a
+        unit: A
+        description: "Generator current phase A"
+        normal_min: 0.0
+        normal_max: 50.0
+        warning_min: 0.5
+        warning_max: 45.0
+        critical_max: 60.0
+        sampling_rate_hz: 10
+        redundant_pair: null
+        data_type: float64
+
+  # =========================================================================
+  # Electric Motor
+  # =========================================================================
+  electric_motor:
+    display_name: "Electric Motor"
+    asset_code_format: "EM-{UNIT:04d}"
+    typical_lifespan_hours: 50000
+    failure_modes:
+      - bearing_degradation
+      - winding_insulation_failure
+      - rotor_bar_crack
+      - misalignment
+      - unbalanced_rotor
+    sensors:
+      - name: vibration_x_a
+        unit: mm/s
+        description: "Vibration X-axis primary (drive-end bearing)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 1000
+        redundant_pair: vibration_x_b
+        data_type: float64
+
+      - name: vibration_x_b
+        unit: mm/s
+        description: "Vibration X-axis secondary (drive-end bearing)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 1000
+        redundant_pair: vibration_x_a
+        data_type: float64
+
+      - name: vibration_y_a
+        unit: mm/s
+        description: "Vibration Y-axis primary (drive-end bearing)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 1000
+        redundant_pair: vibration_y_b
+        data_type: float64
+
+      - name: vibration_y_b
+        unit: mm/s
+        description: "Vibration Y-axis secondary (drive-end bearing)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 1000
+        redundant_pair: vibration_y_a
+        data_type: float64
+
+      - name: vibration_z_a
+        unit: mm/s
+        description: "Vibration Z-axis primary (axial)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 1000
+        redundant_pair: vibration_z_b
+        data_type: float64
+
+      - name: vibration_z_b
+        unit: mm/s
+        description: "Vibration Z-axis secondary (axial)"
+        normal_min: 0.0
+        normal_max: 10.0
+        warning_min: 7.0
+        warning_max: 10.0
+        critical_max: 15.0
+        sampling_rate_hz: 1000
+        redundant_pair: vibration_z_a
+        data_type: float64
+
+      - name: temperature_a
+        unit: C
+        description: "Winding temperature primary"
+        normal_min: 20.0
+        normal_max: 95.0
+        warning_min: 85.0
+        warning_max: 95.0
+        critical_max: 120.0
+        sampling_rate_hz: 1
+        redundant_pair: temperature_b
+        data_type: float64
+
+      - name: temperature_b
+        unit: C
+        description: "Winding temperature secondary"
+        normal_min: 20.0
+        normal_max: 95.0
+        warning_min: 85.0
+        warning_max: 95.0
+        critical_max: 120.0
+        sampling_rate_hz: 1
+        redundant_pair: temperature_a
+        data_type: float64
+
+      - name: rpm
+        unit: rpm
+        description: "Motor speed"
+        normal_min: 0.0
+        normal_max: 3600.0
+        warning_min: 100.0
+        warning_max: 3550.0
+        critical_max: 4000.0
+        sampling_rate_hz: 10
+        redundant_pair: null
+        data_type: float64
+
+      - name: current_a
+        unit: A
+        description: "Stator current phase A"
+        normal_min: 0.0
+        normal_max: 50.0
+        warning_min: 0.5
+        warning_max: 45.0
+        critical_max: 60.0
+        sampling_rate_hz: 10
+        redundant_pair: null
+        data_type: float64
+
+      - name: voltage
+        unit: V
+        description: "Line-to-line voltage"
+        normal_min: 380.0
+        normal_max: 480.0
+        warning_min: 370.0
+        warning_max: 490.0
+        critical_min: 350.0
+        critical_max: 500.0
+        sampling_rate_hz: 10
+        redundant_pair: null
+        data_type: float64
+
+      - name: power_factor
+        unit: "dimensionless"
+        description: "Power factor (cos phi)"
+        normal_min: 0.7
+        normal_max: 1.0
+        warning_min: 0.60
+        warning_max: 1.0
+        critical_min: 0.50
+        critical_max: 1.0
+        sampling_rate_hz: 1
+        redundant_pair: null
+        data_type: float64

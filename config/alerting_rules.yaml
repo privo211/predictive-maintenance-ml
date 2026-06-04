@@ -1,0 +1,203 @@
+# ---------------------------------------------------------------------------
+# Alerting Rules — Predictive Maintenance Platform
+# ---------------------------------------------------------------------------
+# Each rule defines a condition that, when met, triggers an alert at the
+# specified severity level. Rules are evaluated by the monitoring service
+# on a configurable interval (see settings.drift_check_interval_hours).
+# ---------------------------------------------------------------------------
+
+alerting:
+
+  # Global alerting configuration
+  config:
+    default_cooldown_minutes: 15
+    escalation_chain:
+      - role: "on_call_engineer"
+        delay_minutes: 0
+      - role: "senior_engineer"
+        delay_minutes: 30
+      - role: "plant_manager"
+        delay_minutes: 120
+    channels:
+      sms_enabled: true
+      email_enabled: true
+      webhook_enabled: true
+      dashboard_banner: true
+
+  rules:
+
+    # -----------------------------------------------------------------------
+    # Data Quality Gate Failure
+    # -----------------------------------------------------------------------
+    - rule_id: "data_quality_gate_failure"
+      name: "Data Quality Gate Failure"
+      description: "Incoming sensor batch failed the data quality validation gate."
+      condition: "data_quality_score < 0.90"
+      threshold:
+        metric: "data_quality_score"
+        operator: "lt"
+        value: 0.90
+      severity: "HIGH"
+      category: "data_pipeline"
+      recommended_action: >
+        Inspect raw sensor data for missing timestamps, out-of-range values,
+        or duplicate records. Verify sensor connectivity and PLC network
+        health. If transient, the failed batch will be quarantined and
+        excluded from inference; manual review may be required for
+        regulatory compliance.
+
+    # -----------------------------------------------------------------------
+    # Sensor Drift Detected
+    # -----------------------------------------------------------------------
+    - rule_id: "sensor_drift_detected"
+      name: "Sensor Drift Detected"
+      description: "Statistically significant distribution shift in one or more sensor readings."
+      condition: "drift_p_value < 0.01 AND drift_magnitude > 0.15"
+      threshold:
+        metric: "drift_p_value"
+        operator: "lt"
+        value: 0.01
+      severity: "MEDIUM"
+      category: "data_pipeline"
+      recommended_action: >
+        Compare drifted sensor with its redundant pair (if available).
+        If redundant sensor shows no drift, schedule recalibration of
+        the drifted sensor. If both sensors drift, investigate process
+        changes. Flag equipment for increased monitoring frequency.
+
+    # -----------------------------------------------------------------------
+    # Failure Probability High
+    # -----------------------------------------------------------------------
+    - rule_id: "failure_probability_high"
+      name: "High Failure Probability"
+      description: "Model predicts failure probability exceeding actionable threshold."
+      condition: "failure_probability >= 0.70"
+      threshold:
+        metric: "failure_probability"
+        operator: "gte"
+        value: 0.70
+      severity: "CRITICAL"
+      category: "prediction"
+      recommended_action: >
+        Immediately notify maintenance team lead. Schedule unplanned
+        inspection within 4 hours. If operating in nuclear safety-related
+        context, follow site emergency procedures. Review SHAP
+        explanation to identify contributing sensors. Consider controlled
+        shutdown if probability > 0.90 and equipment is safety-critical.
+
+    # -----------------------------------------------------------------------
+    # Model Drift Detected
+    # -----------------------------------------------------------------------
+    - rule_id: "model_drift_detected"
+      name: "Model Drift Detected"
+      description: "Model input data distribution has shifted significantly from training reference."
+      condition: "model_drift_score > 0.30"
+      threshold:
+        metric: "model_drift_score"
+        operator: "gt"
+        value: 0.30
+      severity: "MEDIUM"
+      category: "model_monitoring"
+      recommended_action: >
+        Initiate model performance audit with recent labeled data if
+        available. If ground-truth labels are unavailable, increase
+        manual inspection frequency. Schedule retraining evaluation.
+        Do not automatically rollback unless recall drops below
+        threshold (see evaluation.recall_min in model_config.yaml).
+
+    # -----------------------------------------------------------------------
+    # Missing Data Rate Exceeded
+    # -----------------------------------------------------------------------
+    - rule_id: "missing_data_rate"
+      name: "Missing Data Rate Exceeded"
+      description: "Percentage of missing sensor readings exceeds acceptable threshold."
+      condition: "missing_rate > 0.05 over window_minutes=15"
+      threshold:
+        metric: "missing_rate"
+        operator: "gt"
+        value: 0.05
+      severity: "LOW"
+      category: "data_pipeline"
+      recommended_action: >
+        Check data acquisition system (DAQ) logs for errors. Verify
+        network connectivity between PLC/SCADA and ingestion service.
+        If missing data is localized to a single sensor, check sensor
+        power supply and signal cabling. Escalate to MEDIUM if rate
+        exceeds 0.10 for more than 30 minutes.
+
+    # -----------------------------------------------------------------------
+    # Cross-Channel Mismatch
+    # -----------------------------------------------------------------------
+    - rule_id: "cross_channel_mismatch"
+      name: "Cross-Channel Sensor Mismatch"
+      description: "Redundant sensor pair readings diverge beyond acceptable tolerance."
+      condition: "absolute_difference > (3 * expected_std_dev)"
+      threshold:
+        metric: "cross_channel_deviation"
+        operator: "gt"
+        value: 3.0
+      severity: "MEDIUM"
+      category: "data_pipeline"
+      recommended_action: >
+        Compare both redundant channels against historical baseline.
+        Identify which channel deviates. If one channel is clearly
+        faulty, flag it for maintenance and use the healthy channel
+        for inference while the faulty one is excluded. Log incident
+        for root-cause analysis.
+
+    # -----------------------------------------------------------------------
+    # Inference Latency Spike
+    # -----------------------------------------------------------------------
+    - rule_id: "inference_latency_spike"
+      name: "Inference Latency Spike"
+      description: "Prediction serving latency exceeds SLA."
+      condition: "p95_latency_ms > 500"
+      threshold:
+        metric: "p95_latency_ms"
+        operator: "gt"
+        value: 500
+      severity: "LOW"
+      category: "infrastructure"
+      recommended_action: >
+        Check API server resource utilization (CPU, memory). Verify
+        Redis cache hit rate. If cache miss rate is high, investigate
+        feature store availability. Scale API workers if sustained.
+        Escalate if p95 exceeds 1000 ms.
+
+    # -----------------------------------------------------------------------
+    # Redis Connection Failure
+    # -----------------------------------------------------------------------
+    - rule_id: "redis_connection_failure"
+      name: "Redis Connection Failure"
+      description: "Unable to reach Redis cache instance."
+      condition: "redis_connected == false"
+      threshold:
+        metric: "redis_connected"
+        operator: "eq"
+        value: false
+      severity: "HIGH"
+      category: "infrastructure"
+      recommended_action: >
+        Verify Redis service is running and network is reachable.
+        API will fall back to direct feature computation (increased
+        latency). Restart Redis if unresponsive. If persistent,
+        failover to replica if configured.
+
+    # -----------------------------------------------------------------------
+    # Database Connection Failure
+    # -----------------------------------------------------------------------
+    - rule_id: "database_connection_failure"
+      name: "Database Connection Failure"
+      description: "Unable to reach PostgreSQL database."
+      condition: "db_connected == false"
+      threshold:
+        metric: "db_connected"
+        operator: "eq"
+        value: false
+      severity: "CRITICAL"
+      category: "infrastructure"
+      recommended_action: >
+        Verify PostgreSQL is running. Check connection pool exhaustion.
+        If primary is down, trigger failover to standby. Prediction
+        logging will buffer in-memory until connection is restored.
+        Notify DBA team immediately.

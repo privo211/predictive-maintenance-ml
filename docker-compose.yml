@@ -1,0 +1,121 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: "postgresql+asyncpg://pdm_user:pdm_pass@db:5432/pdm_db"
+      REDIS_URL: "redis://redis:6379/0"
+      MLFLOW_TRACKING_URI: "http://mlflow:5000"
+      MODEL_STAGE: "Production"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      mlflow:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    networks:
+      - pdm-network
+    restart: unless-stopped
+
+  db:
+    image: timescale/timescaledb:2.16-pg16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: "pdm_db"
+      POSTGRES_USER: "pdm_user"
+      POSTGRES_PASSWORD: "pdm_pass"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pdm_user -d pdm_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - pdm-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.4-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - pdm-network
+    restart: unless-stopped
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.20.0
+    command: >
+      mlflow server
+      --backend-store-uri postgresql://pdm_user:pdm_pass@db:5432/pdm_db
+      --default-artifact-root /mlflow-artifacts
+      --host 0.0.0.0
+      --port 5000
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow_artifacts:/mlflow-artifacts
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - pdm-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.5.0
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "admin"
+      GF_INSTALL_PLUGINS: "grafana-clock-panel"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./dashboards/grafana/predictive_maintenance.json:/etc/grafana/provisioning/dashboards/predictive_maintenance.json:ro
+    networks:
+      - pdm-network
+    restart: unless-stopped
+
+  training:
+    build:
+      context: .
+      dockerfile: docker/training.Dockerfile
+    command: ["python", "scripts/train_model.py"]
+    environment:
+      DATABASE_URL: "postgresql+asyncpg://pdm_user:pdm_pass@db:5432/pdm_db"
+      REDIS_URL: "redis://redis:6379/0"
+      MLFLOW_TRACKING_URI: "http://mlflow:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+      mlflow:
+        condition: service_started
+    profiles:
+      - training
+    networks:
+      - pdm-network
+    restart: "no"
+
+volumes:
+  pgdata:
+  mlflow_artifacts:
+  grafana_data:
+
+networks:
+  pdm-network:
+    driver: bridge

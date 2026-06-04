@@ -1,0 +1,46 @@
+# ===========================================================================
+# Predictive Maintenance Platform — .gitignore
+# ===========================================================================
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+*.so
+
+# --- Virtual environment ---
+.venv/
+venv/
+env/
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Project-specific ---
+.env
+logs/
+/data/
+/models/
+htmlcov/
+.coverage
+coverage.xml
+*.db
+*.sqlite3
+
+# --- MLflow ---
+mlruns/
+
+# --- Notebook checkpoints ---
+.ipynb_checkpoints/

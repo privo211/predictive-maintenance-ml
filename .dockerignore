@@ -1,0 +1,54 @@
+# Python cache and bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Version control
+.git/
+.gitignore
+
+# Environment
+.env
+.env.*
+venv/
+.venv/
+
+# Testing
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+tests/
+
+# Notebooks
+notebooks/
+*.ipynb_checkpoints/
+
+# MLflow local artifacts
+mlruns/
+
+# Data (mounted volumes or generated)
+data/
+*.csv
+*.parquet
+*.joblib
+*.pkl
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation (not needed in image)
+docs/
+*.md
