@@ -123,10 +123,18 @@ class ModelEvaluator:
     def check_promotion_gates(self, metrics: dict[str, Any]) -> tuple[bool, list[str]]:
         """Check if model passes promotion thresholds.
 
-        Default thresholds:
+        Six gates covering recall (must catch failures), false-positive
+        rate (must not trigger false alarms), and overall discrimination:
+
         - ``recall >= 0.90``
         - ``fpr <= 0.10``
         - ``roc_auc >= 0.92``
+        - ``precision >= 0.70``
+        - ``f1 >= 0.80``
+        - ``pr_auc >= 0.85``
+
+        Thresholds can be overridden via ``self._thresholds`` (set after
+        construction or from a config file).
 
         Args:
             metrics: Metrics dict from ``evaluate()``.
@@ -134,10 +142,22 @@ class ModelEvaluator:
         Returns:
             Tuple of (passed: bool, failed_gates: list of gate descriptions).
         """
+        thresholds = getattr(self, "_thresholds", None) or {
+            "recall": 0.90,
+            "fpr": 0.10,
+            "roc_auc": 0.92,
+            "precision": 0.70,
+            "f1": 0.80,
+            "pr_auc": 0.85,
+        }
+
         gates = {
-            "recall": ("recall >= 0.90", metrics.get("recall", 0.0), 0.90, "gte"),
-            "fpr": ("fpr <= 0.10", metrics.get("false_positive_rate", 1.0), 0.10, "lte"),
-            "roc_auc": ("roc_auc >= 0.92", metrics.get("roc_auc", 0.0), 0.92, "gte"),
+            "recall": ("recall >= {:.2f}".format(thresholds["recall"]), metrics.get("recall", 0.0), thresholds["recall"], "gte"),
+            "fpr": ("fpr <= {:.2f}".format(thresholds["fpr"]), metrics.get("false_positive_rate", 1.0), thresholds["fpr"], "lte"),
+            "roc_auc": ("roc_auc >= {:.2f}".format(thresholds["roc_auc"]), metrics.get("roc_auc", 0.0), thresholds["roc_auc"], "gte"),
+            "precision": ("precision >= {:.2f}".format(thresholds["precision"]), metrics.get("precision", 0.0), thresholds["precision"], "gte"),
+            "f1": ("f1 >= {:.2f}".format(thresholds["f1"]), metrics.get("f1", 0.0), thresholds["f1"], "gte"),
+            "pr_auc": ("pr_auc >= {:.2f}".format(thresholds["pr_auc"]), metrics.get("pr_auc", 0.0), thresholds["pr_auc"], "gte"),
         }
 
         failures: list[str] = []

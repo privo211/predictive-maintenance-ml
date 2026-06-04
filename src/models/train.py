@@ -175,6 +175,7 @@ class ModelTrainer:
                 y_train,
                 eval_set=[(X_val, y_val)],
                 verbose=False,
+                early_stopping_rounds=early_stopping,
             )
 
             # -- Validation metrics ------------------------------------------
@@ -244,9 +245,15 @@ class ModelTrainer:
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Split data respecting time ordering.
 
-        Data MUST already be ordered by timestamp before calling this
-        method. The split uses sequential indices (first N% for train,
-        next M% for validation, last L% for test).
+        **Precondition**: ``X`` and ``y`` MUST already be sorted by
+        timestamp (oldest first) before calling this method. The split
+        uses sequential indices — first N% for training, next M% for
+        validation, last L% for testing — so shuffle or random ordering
+        will silently produce a random split, not a temporal one.
+
+        A heuristic check warns if the positive rate differs
+        dramatically between train and validation sets, which may
+        indicate unsorted data.
 
         Args:
             X: Feature matrix, ordered by time (oldest first).
@@ -265,6 +272,21 @@ class ModelTrainer:
         X_train, y_train = X[:train_end], y[:train_end]
         X_val, y_val = X[train_end:val_end], y[train_end:val_end]
         X_test, y_test = X[val_end:], y[val_end:]
+
+        # Heuristic: warn if positive rates differ dramatically
+        # across adjacent splits (can indicate unsorted data).
+        train_pos_rate = float(np.mean(y_train))
+        val_pos_rate = float(np.mean(y_val))
+        if val_pos_rate > 0 and train_pos_rate > 0:
+            ratio = val_pos_rate / train_pos_rate
+            if ratio > 3.0 or ratio < 0.33:
+                logger.warning(
+                    "Positive rate differs substantially between train "
+                    "(%.3f) and validation (%.3f) sets. Data may not be "
+                    "time-ordered. A temporal split requires pre-sorted data.",
+                    train_pos_rate,
+                    val_pos_rate,
+                )
 
         return X_train, y_train, X_val, y_val, X_test, y_test
 

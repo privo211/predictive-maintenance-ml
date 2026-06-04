@@ -317,7 +317,7 @@ class FeaturePipeline(BaseEstimator, TransformerMixin):
         )
 
         td_features = self._extract_time_domain(eq_data, sensors)
-        fft_features = self._extract_frequency_domain(X_raw, eq_id, sensors)
+        fft_features = self._extract_frequency_domain(X_raw, eq_id, sensors, eq_data)
         deg_features = self._extract_degradation(eq_data, sensors)
 
         all_features = pd.concat([td_features, fft_features, deg_features], axis=1)
@@ -366,6 +366,7 @@ class FeaturePipeline(BaseEstimator, TransformerMixin):
         X_raw: pd.DataFrame,
         eq_id: str,
         sensors: list[str],
+        eq_data: pd.DataFrame | None = None,
     ) -> pd.DataFrame:
         fft_features_per_sensor: dict[str, dict[str, float]] = {}
 
@@ -392,9 +393,9 @@ class FeaturePipeline(BaseEstimator, TransformerMixin):
                 fft_features_per_sensor[key] = fft_result[fft_name]
 
         if not fft_features_per_sensor:
-            return pd.DataFrame(index=pd.DatetimeIndex([]))
+            return pd.DataFrame(index=(eq_data.index if eq_data is not None else pd.DatetimeIndex([])))
 
-        idx = pd.DatetimeIndex([])
+        idx = eq_data.index if eq_data is not None else pd.DatetimeIndex([])
         return pd.DataFrame(
             {k: pd.Series(v, index=idx) for k, v in fft_features_per_sensor.items()}
         )
