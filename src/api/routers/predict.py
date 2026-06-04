@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import logging
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import suppress
 from datetime import datetime, timezone
 
 import numpy as np
@@ -201,12 +202,6 @@ async def predict(
             violations=gate_info.total_violations,
         )
 
-    crash_counter = getattr(request.app.state, "error_count", 0)
-    try:
-        request.app.state.error_count = crash_counter
-    except Exception:
-        pass
-
     if demo_mode:
         logger.debug(
             "Demo mode prediction for equipment=%s (model not loaded)",
@@ -225,16 +220,15 @@ async def predict(
                 "Model not loaded during prediction for equipment=%s, falling back to demo mode",
                 equipment_id,
             )
+            _increment_error_count(request)
             demo_mode = True
             failure_probability, predicted_class = await _demo_mode_predict_async(
                 thread_pool, df, equipment_id, 0.2
             )
 
     pred_count = getattr(request.app.state, "prediction_count", 0) + 1
-    try:
+    with suppress(Exception):
         request.app.state.prediction_count = pred_count
-    except Exception:
-        pass
 
     return PredictionResponse(
         equipment_id=equipment_id,
@@ -305,10 +299,8 @@ async def batch_predict(
         )
 
     pred_count = getattr(request.app.state, "prediction_count", 0) + 1
-    try:
+    with suppress(Exception):
         request.app.state.prediction_count = pred_count
-    except Exception:
-        pass
 
     return BatchPredictionResponse(
         results=results,
@@ -319,6 +311,13 @@ async def batch_predict(
         timestamp=datetime.now(timezone.utc).isoformat(),
         request_id=request_id,
     )
+
+
+def _increment_error_count(request: Request) -> None:
+    """Safely increment the error counter on the application state."""
+    with suppress(Exception):
+        current = getattr(request.app.state, "error_count", 0)
+        request.app.state.error_count = current + 1
 
 
 async def _demo_mode_predict_async(
