@@ -1,23 +1,25 @@
-FROM python:3.12-slim
+FROM python:3.12-slim AS builder
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-
-# Copy application code first so pip install . can find the package
-COPY pyproject.toml .
+COPY pyproject.toml README.md ./
 COPY config/ ./config/
 COPY src/ ./src/
 COPY scripts/ ./scripts/
+RUN pip wheel --no-cache-dir --wheel-dir /wheels .
 
-# Install Python dependencies and the package itself
-RUN pip install --no-cache-dir .
+FROM python:3.12-slim
 
-# Create non-root user and switch
+WORKDIR /app
+COPY --from=builder /wheels /wheels
+COPY pyproject.toml README.md ./
+COPY config/ ./config/
+COPY scripts/ ./scripts/
+RUN pip install --no-cache-dir --no-index --find-links=/wheels . && rm -rf /wheels
+
 RUN useradd --create-home --shell /bin/bash appuser && chown -R appuser:appuser /app
 USER appuser
 

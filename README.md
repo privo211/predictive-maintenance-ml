@@ -78,7 +78,7 @@ This project demonstrates **production ML engineering**, not Kaggle ML. It answe
 - **XGBoost Classifier** trained with temporal train/test splits (no future leakage)
 - **5 evaluation promotion gates**: recall ≥ 0.90, FPR ≤ 0.10, ROC-AUC ≥ 0.92, precision ≥ 0.70, F1 ≥ 0.80
 - **Class imbalance handling** via `scale_pos_weight`
-- **Calibrated probabilities** (isotonic regression)
+- **Probability calibration** via reliability diagrams in evaluation
 - **Early stopping** with 30-round patience
 
 ### 🛡️ Data Quality Firewall (5 Stages)
@@ -150,8 +150,8 @@ This project demonstrates **production ML engineering**, not Kaggle ML. It answe
                                         │
                          ┌──────────────▼───────────────────────┐
                          │    MODEL INFERENCE                    │
-                         │  [XGBoost Classifier → SHAP TreeExp.  │
-                         │   → Calibrated Probability]           │
+                          │  [XGBoost Classifier → SHAP TreeExp.  │
+                          │   → Failure Probability]              │
                          └──────────────┬───────────────────────┘
                                         │
           ┌─────────────────────────────┬─────────────────────────────┐

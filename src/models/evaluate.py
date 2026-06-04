@@ -115,7 +115,7 @@ class ModelEvaluator:
             metrics["recall"],
             metrics["precision"],
             metrics["roc_auc"],
-            metrics["fpr"],
+            metrics["false_positive_rate"],
         )
 
         return metrics

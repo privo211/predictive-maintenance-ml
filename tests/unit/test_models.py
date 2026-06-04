@@ -124,6 +124,9 @@ class TestPromotionGates:
             "recall": 0.95,
             "false_positive_rate": 0.02,
             "roc_auc": 0.97,
+            "precision": 0.90,
+            "f1": 0.90,
+            "pr_auc": 0.90,
         }
         passed, failures = evaluator.check_promotion_gates(good_metrics)
         assert passed

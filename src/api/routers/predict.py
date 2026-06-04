@@ -9,6 +9,7 @@ endpoint falls back to demo mode using a threshold on the health column.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress
@@ -142,7 +143,6 @@ def _demo_mode_predict(df: pd.DataFrame, equipment_id: str, threshold: float) ->
         temp_score /= n_temp
 
     estimated_health = max(0.0, min(1.0, 1.0 - (vib_score / 15.0) * 0.5 - (temp_score / 120.0) * 0.3))
-    estimated_health *= np.random.uniform(0.9, 1.1)
     estimated_health = max(0.0, min(1.0, estimated_health))
 
     failure_probability = 1.0 - estimated_health
@@ -156,7 +156,17 @@ def _do_inference_sync(model, feature_pipeline, df: pd.DataFrame) -> tuple[float
 
     This function is meant to be run inside a ThreadPoolExecutor to avoid
     blocking the event loop.
+
+    Raises:
+        ModelNotLoadedException: If model or feature_pipeline is None.
     """
+    from api.errors import ModelNotLoadedException
+
+    if model is None:
+        raise ModelNotLoadedException("Model is not loaded for inference")
+    if feature_pipeline is None:
+        raise ModelNotLoadedException("Feature pipeline is not loaded for inference")
+
     features = feature_pipeline.transform(df)
     if features.shape[0] == 0:
         return 0.01, 0
@@ -225,6 +235,15 @@ async def predict(
             failure_probability, predicted_class = await _demo_mode_predict_async(
                 thread_pool, df, equipment_id, 0.2
             )
+        except Exception:
+            logger.exception(
+                "Unexpected error during inference for equipment=%s",
+                equipment_id,
+            )
+            _increment_error_count(request)
+            failure_probability, predicted_class = await _demo_mode_predict_async(
+                thread_pool, df, equipment_id, 0.2
+            )
 
     pred_count = getattr(request.app.state, "prediction_count", 0) + 1
     with suppress(Exception):
@@ -282,6 +301,17 @@ async def batch_predict(
                     thread_pool, model, feature_pipeline, eq_df
                 )
             except ModelNotLoadedException:
+                _increment_error_count(request)
+                demo_mode = True
+                failure_prob, pred_class = await _demo_mode_predict_async(
+                    thread_pool, eq_df, eq_id, 0.2
+                )
+            except Exception:
+                _increment_error_count(request)
+                logger.exception(
+                    "Unexpected error during batch inference for equipment=%s",
+                    eq_id,
+                )
                 failure_prob, pred_class = await _demo_mode_predict_async(
                     thread_pool, eq_df, eq_id, 0.2
                 )
@@ -327,8 +357,6 @@ async def _demo_mode_predict_async(
     threshold: float,
 ) -> tuple[float, int]:
     """Run demo mode prediction in thread pool."""
-    import asyncio
-
     loop = asyncio.get_running_loop()
     return await loop.run_in_executor(
         thread_pool,
@@ -346,8 +374,6 @@ async def _run_inference_in_thread(
     df: pd.DataFrame,
 ) -> tuple[float, int]:
     """Run feature extraction + model inference in a thread pool."""
-    import asyncio
-
     loop = asyncio.get_running_loop()
     return await loop.run_in_executor(
         thread_pool,

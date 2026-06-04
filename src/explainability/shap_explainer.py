@@ -162,7 +162,7 @@ class SHAPExplainer:
                 "shap_value": float(shap_val),
                 "direction": "increases_failure_risk" if shap_val > 0 else "decreases_failure_risk",
                 "feature_value": feat_value,
-                "expected_range": f"mean ± std",
+                "expected_range": "",
             })
 
         return {

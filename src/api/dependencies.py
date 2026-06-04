@@ -20,62 +20,49 @@ logger = logging.getLogger(__name__)
 def get_model(request: Request) -> Any:
     """Retrieve the loaded XGBoost model from application state.
 
-    If the model is not loaded, raises ModelNotLoadedException. Callers
-    in the predict router should catch this to fall back to demo mode
-    rather than propagating the error to the client.
+    Returns None if the model is not loaded, letting endpoint handlers
+    decide whether to fall back to demo mode or raise an error.
 
     Args:
         request: The incoming FastAPI request (injected automatically).
 
     Returns:
         The XGBoost classifier or None if not loaded.
-
-    Raises:
-        ModelNotLoadedException: If the model is not available.
     """
-    model = request.app.state.model
-    if model is None:
-        logger.warning("Model requested but not loaded in application state.")
-        raise ModelNotLoadedException()
-    return model
+    return request.app.state.model
 
 
 def get_explainer(request: Request) -> Any:
     """Retrieve the SHAP explainer from application state.
+
+    Returns None if the explainer is not available, letting endpoint
+    handlers decide whether to fall back to demo mode.
 
     Args:
         request: The incoming FastAPI request (injected automatically).
 
     Returns:
         The SHAPExplainer instance or None if not loaded.
-
-    Raises:
-        ModelNotLoadedException: If the explainer is not available.
     """
     explainer = request.app.state.shap_explainer
     if explainer is None:
         logger.warning("SHAP explainer requested but not loaded.")
-        raise ModelNotLoadedException("SHAP explainer is not loaded")
     return explainer
 
 
 def get_feature_pipeline(request: Request) -> Any:
     """Retrieve the fitted FeaturePipeline from application state.
 
+    Returns None if the pipeline is not available, letting endpoint
+    handlers decide whether to fall back to demo mode.
+
     Args:
         request: The incoming FastAPI request (injected automatically).
 
     Returns:
-        The fitted FeaturePipeline instance.
-
-    Raises:
-        ModelNotLoadedException: If the feature pipeline is not fitted.
+        The fitted FeaturePipeline instance or None.
     """
-    pipeline = request.app.state.feature_pipeline
-    if pipeline is None:
-        logger.warning("Feature pipeline requested but not loaded.")
-        raise ModelNotLoadedException("Feature pipeline is not loaded")
-    return pipeline
+    return request.app.state.feature_pipeline
 
 
 def get_quality_gate(request: Request) -> Any:

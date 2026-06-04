@@ -164,13 +164,24 @@ class FeaturePipeline(BaseEstimator, TransformerMixin):
     def transform(self, X: pd.DataFrame) -> npt.NDArray[np.float64]:
         """Transform raw data to feature matrix.
 
+        Must call ``fit`` before calling this method.
+
         Args:
             X: Long-form DataFrame with columns:
                 timestamp, equipment_id, sensor_name, value.
 
         Returns:
             2-D numpy array of shape (n_samples, n_features).
+
+        Raises:
+            AttributeError: If ``fit`` has not been called yet.
         """
+        if not hasattr(self, "_scaler_"):
+            msg = (
+                "FeaturePipeline has not been fitted. "
+                "Call fit() before transform()."
+            )
+            raise AttributeError(msg)
         self._validate_input(X)
 
         resampled = self._pivot_and_resample(X)
@@ -501,7 +512,6 @@ class FeaturePipeline(BaseEstimator, TransformerMixin):
         window_str: str,
     ) -> pd.Series:
         result = pd.Series(np.nan, index=series.index, dtype=np.float64)
-        rolled = series.rolling(window_str, min_periods=3)
         time_series = pd.Series(time_numeric, index=series.index)
 
         for i in range(len(series)):

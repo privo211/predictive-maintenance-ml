@@ -8,6 +8,7 @@ demo mode with synthetic feature contributions when models are missing.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from datetime import datetime, timezone
 
@@ -28,7 +29,17 @@ def _explain_sync(model, explainer, feature_pipeline, df: pd.DataFrame) -> dict:
     """Run feature extraction + SHAP explanation synchronously.
 
     This is meant to run inside a ThreadPoolExecutor.
+
+    Raises:
+        ModelNotLoadedException: If model, explainer, or feature_pipeline is None.
     """
+    if model is None:
+        raise ModelNotLoadedException("Model is not loaded for explanation")
+    if explainer is None:
+        raise ModelNotLoadedException("Explainer is not loaded for explanation")
+    if feature_pipeline is None:
+        raise ModelNotLoadedException("Feature pipeline is not loaded for explanation")
+
     features = feature_pipeline.transform(df)
     feature_names = feature_pipeline.get_feature_names()
 
@@ -153,8 +164,6 @@ async def explain_prediction(
     unavailable, falls back to demo mode with synthetic contribution
     values derived from feature statistics.
     """
-    import asyncio
-
     equipment_id = body.readings[0].equipment_id
     request_id = getattr(request.state, "request_id", None)
 

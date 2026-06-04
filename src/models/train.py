@@ -388,13 +388,14 @@ def _log_shap_summary(
 
     shap_values = explainer.shap_values(X_sample)
 
-    fig = plt.figure(figsize=(10, 7))
     shap.summary_plot(
         shap_values,
         X_sample,
         feature_names=feature_names,
         show=False,
     )
+    fig = plt.gcf()
+    fig.set_size_inches(10, 7)
     fig.tight_layout()
 
     mlflow.log_figure(fig, "plots/shap_summary.png")
@@ -410,4 +411,5 @@ def _safe_pr_auc(y_true: np.ndarray, y_score: np.ndarray) -> float:
     try:
         return float(average_precision_score(y_true, y_score))
     except ValueError:
+        logger.warning("PR-AUC computation failed — all targets may be the same class.")
         return 0.0

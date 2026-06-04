@@ -52,3 +52,4 @@ Thumbs.db
 # Documentation (not needed in image)
 docs/
 *.md
+!README.md

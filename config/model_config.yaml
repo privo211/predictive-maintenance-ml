@@ -52,8 +52,6 @@ data_splits:
   split_column: "timestamp"
 
 # ---------------------------------------------------------------------------
-# Calibration
-# ---------------------------------------------------------------------------
 calibration:
   method: "isotonic"            # isotonic | platt
   cv_folds: 5
