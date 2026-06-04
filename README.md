@@ -200,7 +200,7 @@ Raw Sensor Data
       ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │ INFERENCE                                                             │
-│  XGBoost predict_proba() → calibrated probability                    │
+ │  XGBoost predict_proba() → predicted failure probability             │
 │  If probability ≥ 0.5 → failure predicted                            │
 │  SHAP TreeExplainer computes per-feature contributions               │
 │  Top-10 contributors returned in /explain response                   │

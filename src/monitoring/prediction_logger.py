@@ -14,7 +14,7 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from src.utils.logger import get_logger
+from utils.logger import get_logger
 
 _logger = get_logger(__name__)
 

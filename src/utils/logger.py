@@ -107,7 +107,7 @@ def get_logger(name: str) -> logging.Logger:
 
     Use in every module::
 
-        from src.utils.logger import get_logger
+        from utils.logger import get_logger
 
         _logger = get_logger(__name__)
     """

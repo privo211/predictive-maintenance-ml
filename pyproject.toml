@@ -60,7 +60,16 @@ train-model = "scripts.train_model:main"
 serve-api = "scripts.serve_api:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src"]
+packages = [
+  "src/api",
+  "src/data",
+  "src/explainability",
+  "src/features",
+  "src/models",
+  "src/monitoring",
+  "src/training",
+  "src/utils",
+]
 
 [tool.hatch.build.targets.sdist]
 include = [
